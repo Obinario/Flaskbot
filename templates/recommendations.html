@@ -271,6 +271,7 @@
                     recommendationsSection.classList.add('active');
                 } else {
                     alert('Error: ' + data.error);
+                    console.error('API Error:', data);
                 }
             } catch (error) {
                 alert('Error getting recommendations. Please try again.');
