@@ -37,10 +37,10 @@ app.secret_key = 'your-secret-key'  # Required for flash messages
 
 # Database configuration
 db_config = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': '',
-    'database': 'psau_admission'
+    'host': os.environ.get('DB_HOST', 'localhost'),
+    'user': os.environ.get('DB_USER', 'root'),
+    'password': os.environ.get('DB_PASSWORD', ''),
+    'database': os.environ.get('DB_NAME', 'psau_admission')
 }
 
 # Initialize the recommender and chatbot with error handling
@@ -326,5 +326,9 @@ if __name__ == '__main__':
     else:
         print("   ⚠️  No FAQs loaded - chatbot will have limited functionality")
     
-    print("🌐 Access the application at: http://localhost:5000")
-    app.run(debug=True, host='0.0.0.0', port=5000) 
+    # Get port from environment variable (for Render)
+    port = int(os.environ.get('PORT', 5000))
+    debug_mode = os.environ.get('FLASK_ENV') == 'development'
+    
+    print(f"🌐 Access the application at: http://localhost:{port}")
+    app.run(debug=debug_mode, host='0.0.0.0', port=port) 
