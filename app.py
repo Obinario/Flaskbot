@@ -58,10 +58,14 @@ def course_recommendations():
     try:
         # Get the data from the request
         data = request.get_json()
+        print(f"Received data: {data}")  # Debug log
+        
         stanine = data.get('stanine', '')
         gwa = data.get('gwa', '')
         strand = data.get('strand', '')
         hobbies = data.get('hobbies', '')
+        
+        print(f"Parsed values - stanine: {stanine}, gwa: {gwa}, strand: {strand}, hobbies: {hobbies}")  # Debug log
         
         # Validate required fields
         if not all([stanine, gwa, strand, hobbies]):
@@ -69,6 +73,8 @@ def course_recommendations():
                 'error': 'Missing required fields: stanine, gwa, strand, and hobbies are required',
                 'status': 'error'
             }), 400
+        
+        print("Calling Gradio API...")  # Debug log
         
         # Call the Gradio API for course recommendations
         result = client.predict(
@@ -79,6 +85,8 @@ def course_recommendations():
             api_name="/get_course_recommendations"
         )
         
+        print(f"API result: {result}")  # Debug log
+        
         # Return the course recommendations
         return jsonify({
             'recommendations': result,
@@ -87,9 +95,36 @@ def course_recommendations():
         
     except Exception as e:
         print(f"Error calling course recommendations API: {str(e)}")
+        print(f"Error type: {type(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({
-            'error': 'Failed to get course recommendations',
+            'error': f'Failed to get course recommendations: {str(e)}',
             'status': 'error'
+        }), 500
+
+@app.route('/test_gradio')
+def test_gradio():
+    """Test Gradio client connection"""
+    try:
+        # Test basic connection
+        result = client.predict(
+            stanine="7",
+            gwa="85.0",
+            strand="STEM",
+            hobbies="Programming",
+            api_name="/get_course_recommendations"
+        )
+        return jsonify({
+            'status': 'success',
+            'test_result': result,
+            'message': 'Gradio client is working'
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e),
+            'message': 'Gradio client connection failed'
         }), 500
 
 @app.route('/health')
