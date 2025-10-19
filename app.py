@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, redirect
+from flask import Flask, render_template, request, jsonify
 from gradio_client import Client
 import os
 
@@ -8,9 +8,9 @@ app = Flask(__name__)
 client = Client("markobinario/flaskbot")
 
 @app.route('/')
-def index():
-    """Redirect to chatbot page"""
-    return redirect('/chatbot')
+def home():
+    """Render the home page"""
+    return render_template('home.html')
 
 @app.route('/chatbot')
 def chatbot():
@@ -19,7 +19,7 @@ def chatbot():
 
 @app.route('/recommendations')
 def recommendations():
-    """Render the course recommendations page"""
+    """Render the recommendations page"""
     return render_template('recommendations.html')
 
 @app.route('/chat', methods=['POST'])
