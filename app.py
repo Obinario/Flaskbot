@@ -1,11 +1,23 @@
 from flask import Flask, render_template, request, jsonify
 from gradio_client import Client
 import os
+import sys
+
+# Fix Unicode encoding issues on Windows
+if sys.platform.startswith('win'):
+    import codecs
+    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.detach())
+    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.detach())
 
 app = Flask(__name__)
 
 # Initialize the Gradio client
-client = Client("markobinario/flaskbot")
+try:
+    client = Client("markobinario/flaskbot")
+    print("Gradio client initialized successfully")
+except Exception as e:
+    print(f"Error initializing Gradio client: {e}")
+    client = None
 
 @app.route('/')
 def home():
@@ -76,6 +88,13 @@ def course_recommendations():
         
         print("Calling Gradio API...")  # Debug log
         
+        # Check if client is available
+        if client is None:
+            return jsonify({
+                'error': 'Gradio client not initialized. Please check server logs.',
+                'status': 'error'
+            }), 500
+        
         # Call the Gradio API for course recommendations
         result = client.predict(
             stanine=stanine,
@@ -107,6 +126,13 @@ def course_recommendations():
 def test_gradio():
     """Test Gradio client connection"""
     try:
+        if client is None:
+            return jsonify({
+                'status': 'error',
+                'error': 'Gradio client not initialized',
+                'message': 'Gradio client connection failed'
+            }), 500
+            
         # Test basic connection
         result = client.predict(
             stanine="7",
