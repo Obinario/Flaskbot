@@ -3,672 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Chatbot</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>AI Assistant Home</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
         }
-
-        .chat-container {
-            width: 90%;
+        
+        .container {
             max-width: 800px;
-            height: 80vh;
+            margin: 0 auto;
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .tab-container {
-            display: flex;
-            background: #f8f9fa;
-            border-bottom: 1px solid #e1e5e9;
-        }
-
-        .tab-button {
-            flex: 1;
-            padding: 15px 20px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 500;
-            color: #6c757d;
-            transition: all 0.3s;
-            border-bottom: 3px solid transparent;
-        }
-
-        .tab-button.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
-            background: white;
-        }
-
-        .tab-button:hover {
-            background: #e9ecef;
-        }
-
-        .tab-content {
-            display: none;
-            flex: 1;
-            flex-direction: column;
-        }
-
-        .tab-content.active {
-            display: flex;
-        }
-
-        .course-form {
-            padding: 20px;
-            background: #f8f9fa;
-            flex: 1;
-            overflow-y: auto;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #333;
-        }
-
-        .form-input, .form-select, .form-textarea {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid #e1e5e9;
+            padding: 40px;
             border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-
-        .form-input:focus, .form-select:focus, .form-textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .form-textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .form-row {
-            display: flex;
-            gap: 15px;
-        }
-
-        .form-row .form-group {
-            flex: 1;
-        }
-
-        .recommendations-container {
-            padding: 20px;
-            background: white;
-            flex: 1;
-            overflow-y: auto;
-            display: none;
-        }
-
-        .recommendations-container.active {
-            display: block;
-        }
-
-        .recommendation-card {
-            background: white;
-            border: 1px solid #e1e5e9;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
-        }
-
-        .recommendation-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-        }
-
-        .recommendation-title {
-            font-size: 18px;
-            font-weight: 600;
+        
+        h1 {
+            text-align: center;
             color: #333;
-            margin-bottom: 10px;
+            margin-bottom: 30px;
         }
-
-        .recommendation-description {
+        
+        .options {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .option-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 200px;
+        }
+        
+        .option-card:hover {
+            border-color: #007bff;
+            background: #e3f2fd;
+        }
+        
+        .option-card h3 {
+            margin: 0 0 15px 0;
+            color: #333;
+        }
+        
+        .option-card p {
+            margin: 0;
             color: #666;
             line-height: 1.5;
         }
-
-        .no-recommendations {
-            text-align: center;
-            color: #6c757d;
-            font-style: italic;
-            padding: 40px 20px;
-        }
-
-        .chat-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .chat-messages {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            background: #f8f9fa;
-        }
-
-        .message {
-            margin-bottom: 15px;
-            display: flex;
-            align-items: flex-start;
-        }
-
-        .message.user {
-            justify-content: flex-end;
-        }
-
-        .message.bot {
-            justify-content: flex-start;
-        }
-
-        .message-content {
-            max-width: 70%;
-            padding: 12px 16px;
-            border-radius: 18px;
-            word-wrap: break-word;
-            position: relative;
-        }
-
-        .message.user .message-content {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-bottom-right-radius: 5px;
-        }
-
-        .message.bot .message-content {
-            background: white;
-            color: #333;
-            border: 1px solid #e1e5e9;
-            border-bottom-left-radius: 5px;
-        }
-
-        .message-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 10px;
-            font-size: 14px;
-            color: white;
-        }
-
-        .message.user .message-avatar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        .message.bot .message-avatar {
-            background: #6c757d;
-        }
-
-        .chat-input-container {
-            padding: 20px;
-            background: white;
-            border-top: 1px solid #e1e5e9;
-            display: flex;
-            gap: 10px;
-        }
-
-        .chat-input {
-            flex: 1;
-            padding: 12px 16px;
-            border: 2px solid #e1e5e9;
-            border-radius: 25px;
-            outline: none;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-
-        .chat-input:focus {
-            border-color: #667eea;
-        }
-
-        .send-button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            transition: transform 0.2s;
-        }
-
-        .send-button:hover {
-            transform: scale(1.05);
-        }
-
-        .send-button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .typing-indicator {
-            display: none;
-            align-items: center;
+        
+        .icon {
+            font-size: 48px;
             margin-bottom: 15px;
         }
-
-        .typing-indicator .message-avatar {
-            background: #6c757d;
-        }
-
-        .typing-dots {
-            background: white;
-            border: 1px solid #e1e5e9;
-            border-radius: 18px;
-            padding: 12px 16px;
-            margin-left: 10px;
-        }
-
-        .typing-dots span {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #999;
-            margin: 0 2px;
-            animation: typing 1.4s infinite;
-        }
-
-        .typing-dots span:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .typing-dots span:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-
-        @keyframes typing {
-            0%, 60%, 100% {
-                transform: translateY(0);
-            }
-            30% {
-                transform: translateY(-10px);
-            }
-        }
-
-        .error-message {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-            border-radius: 18px;
-            padding: 12px 16px;
-            margin: 10px 0;
-            text-align: center;
-        }
-
-        @media (max-width: 768px) {
-            .chat-container {
-                width: 95%;
-                height: 90vh;
-            }
-            
-            .message-content {
-                max-width: 85%;
-            }
+        
+        a {
+            text-decoration: none;
+            color: inherit;
         }
     </style>
 </head>
 <body>
-    <div class="chat-container">
-        <div class="chat-header">
-            <i class="fas fa-robot"></i> AI Chatbot & Course Recommender
-        </div>
-        
-        <div class="tab-container">
-            <button class="tab-button active" onclick="switchTab('chat')">
-                <i class="fas fa-comments"></i> Chat
-            </button>
-            <button class="tab-button" onclick="switchTab('courses')">
-                <i class="fas fa-graduation-cap"></i> Course Recommendations
-            </button>
-        </div>
-        
-        <!-- Chat Tab -->
-        <div class="tab-content active" id="chatTab">
-            <div class="chat-messages" id="chatMessages">
-                <div class="message bot">
-                    <div class="message-avatar">
-                        <i class="fas fa-robot"></i>
-                    </div>
-                    <div class="message-content">
-                        Hello! I'm your AI assistant. How can I help you today?
-                    </div>
+    <div class="container">
+        <h1>AI Assistant</h1>
+        <div class="options">
+            <a href="/chatbot">
+                <div class="option-card">
+                    <div class="icon">💬</div>
+                    <h3>Chatbot</h3>
+                    <p>Chat with our AI assistant for general questions and support.</p>
                 </div>
-            </div>
+            </a>
             
-            <div class="typing-indicator" id="typingIndicator">
-                <div class="message-avatar">
-                    <i class="fas fa-robot"></i>
+            <a href="/recommendations">
+                <div class="option-card">
+                    <div class="icon">🎓</div>
+                    <h3>Course Recommendations</h3>
+                    <p>Get personalized course recommendations based on your academic profile.</p>
                 </div>
-                <div class="typing-dots">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
-            </div>
-            
-            <div class="chat-input-container">
-                <input type="text" id="chatInput" class="chat-input" placeholder="Type your message here..." autocomplete="off">
-                <button id="sendButton" class="send-button">
-                    <i class="fas fa-paper-plane"></i>
-                </button>
-            </div>
-        </div>
-        
-        <!-- Course Recommendations Tab -->
-        <div class="tab-content" id="coursesTab">
-            <div class="course-form">
-                <h3 style="margin-bottom: 20px; color: #333;">Get Personalized Course Recommendations</h3>
-                <form id="courseForm">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label" for="stanine">Stanine Score (1-9)</label>
-                            <select id="stanine" class="form-select" required>
-                                <option value="">Select Stanine</option>
-                                <option value="1">1 - Very Low</option>
-                                <option value="2">2 - Low</option>
-                                <option value="3">3 - Below Average</option>
-                                <option value="4">4 - Below Average</option>
-                                <option value="5">5 - Average</option>
-                                <option value="6">6 - Above Average</option>
-                                <option value="7">7 - Above Average</option>
-                                <option value="8">8 - High</option>
-                                <option value="9">9 - Very High</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="gwa">GWA (Grade Weighted Average)</label>
-                            <input type="number" id="gwa" class="form-input" placeholder="e.g., 85.0" step="0.1" min="0" max="100" required>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label" for="strand">Academic Strand</label>
-                        <select id="strand" class="form-select" required>
-                            <option value="">Select Strand</option>
-                            <option value="STEM">STEM (Science, Technology, Engineering, Mathematics)</option>
-                            <option value="ABM">ABM (Accountancy, Business, Management)</option>
-                            <option value="HUMSS">HUMSS (Humanities and Social Sciences)</option>
-                            <option value="GAS">GAS (General Academic Strand)</option>
-                            <option value="TVL">TVL (Technical-Vocational-Livelihood)</option>
-                            <option value="Arts and Design">Arts and Design</option>
-                            <option value="Sports">Sports</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label" for="hobbies">Hobbies & Interests</label>
-                        <textarea id="hobbies" class="form-textarea" placeholder="Tell us about your hobbies, interests, and what you enjoy doing..." required></textarea>
-                    </div>
-                    
-                    <button type="submit" class="send-button" style="width: 100%; border-radius: 8px; height: 50px;">
-                        <i class="fas fa-search"></i> Get Course Recommendations
-                    </button>
-                </form>
-            </div>
-            
-            <div class="recommendations-container" id="recommendationsContainer">
-                <h3 style="margin-bottom: 20px; color: #333;">Your Course Recommendations</h3>
-                <div id="recommendationsList">
-                    <!-- Recommendations will be displayed here -->
-                </div>
-            </div>
+            </a>
         </div>
     </div>
-
-    <script>
-        const chatMessages = document.getElementById('chatMessages');
-        const chatInput = document.getElementById('chatInput');
-        const sendButton = document.getElementById('sendButton');
-        const typingIndicator = document.getElementById('typingIndicator');
-        const courseForm = document.getElementById('courseForm');
-        const recommendationsContainer = document.getElementById('recommendationsContainer');
-        const recommendationsList = document.getElementById('recommendationsList');
-
-        // Function to add a message to the chat
-        function addMessage(content, isUser = false) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
-            
-            const avatarDiv = document.createElement('div');
-            avatarDiv.className = 'message-avatar';
-            avatarDiv.innerHTML = isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
-            
-            const contentDiv = document.createElement('div');
-            contentDiv.className = 'message-content';
-            contentDiv.textContent = content;
-            
-            messageDiv.appendChild(avatarDiv);
-            messageDiv.appendChild(contentDiv);
-            chatMessages.appendChild(messageDiv);
-            
-            // Scroll to bottom
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        // Function to show typing indicator
-        function showTyping() {
-            typingIndicator.style.display = 'flex';
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        // Function to hide typing indicator
-        function hideTyping() {
-            typingIndicator.style.display = 'none';
-        }
-
-        // Function to send message
-        async function sendMessage() {
-            const message = chatInput.value.trim();
-            if (!message) return;
-
-            // Add user message
-            addMessage(message, true);
-            chatInput.value = '';
-            
-            // Disable input and show typing
-            chatInput.disabled = true;
-            sendButton.disabled = true;
-            showTyping();
-
-            try {
-                const response = await fetch('/chat', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ message: message })
-                });
-
-                const data = await response.json();
-                hideTyping();
-
-                if (data.status === 'success') {
-                    addMessage(data.response);
-                } else {
-                    addMessage('Sorry, I encountered an error. Please try again.');
-                }
-            } catch (error) {
-                hideTyping();
-                addMessage('Sorry, I encountered an error. Please try again.');
-                console.error('Error:', error);
-            } finally {
-                // Re-enable input
-                chatInput.disabled = false;
-                sendButton.disabled = false;
-                chatInput.focus();
-            }
-        }
-
-        // Event listeners
-        sendButton.addEventListener('click', sendMessage);
-        
-        chatInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        });
-
-        // Tab switching functionality
-        function switchTab(tabName) {
-            // Remove active class from all tabs and contents
-            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            
-            // Add active class to selected tab and content
-            if (tabName === 'chat') {
-                document.querySelector('.tab-button[onclick="switchTab(\'chat\')"]').classList.add('active');
-                document.getElementById('chatTab').classList.add('active');
-                chatInput.focus();
-            } else if (tabName === 'courses') {
-                document.querySelector('.tab-button[onclick="switchTab(\'courses\')"]').classList.add('active');
-                document.getElementById('coursesTab').classList.add('active');
-            }
-        }
-
-        // Course recommendation functionality
-        async function getCourseRecommendations() {
-            const stanine = document.getElementById('stanine').value;
-            const gwa = document.getElementById('gwa').value;
-            const strand = document.getElementById('strand').value;
-            const hobbies = document.getElementById('hobbies').value;
-
-            if (!stanine || !gwa || !strand || !hobbies) {
-                alert('Please fill in all fields');
-                return;
-            }
-
-            // Show loading state
-            const submitButton = courseForm.querySelector('button[type="submit"]');
-            const originalText = submitButton.innerHTML;
-            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting Recommendations...';
-            submitButton.disabled = true;
-
-            try {
-                const response = await fetch('/course_recommendations', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        stanine: stanine,
-                        gwa: gwa,
-                        strand: strand,
-                        hobbies: hobbies
-                    })
-                });
-
-                const data = await response.json();
-                
-                if (data.status === 'success') {
-                    displayRecommendations(data.recommendations);
-                    recommendationsContainer.classList.add('active');
-                } else {
-                    alert('Error: ' + data.error);
-                }
-            } catch (error) {
-                alert('Error getting recommendations. Please try again.');
-                console.error('Error:', error);
-            } finally {
-                // Reset button state
-                submitButton.innerHTML = originalText;
-                submitButton.disabled = false;
-            }
-        }
-
-        // Display course recommendations
-        function displayRecommendations(recommendations) {
-            recommendationsList.innerHTML = '';
-            
-            if (!recommendations || recommendations.length === 0) {
-                recommendationsList.innerHTML = '<div class="no-recommendations">No recommendations available. Please try again with different information.</div>';
-                return;
-            }
-
-            // Handle different response formats
-            let recommendationsArray = recommendations;
-            if (typeof recommendations === 'string') {
-                // If it's a string, try to parse it or display as is
-                recommendationsArray = [recommendations];
-            }
-
-            recommendationsArray.forEach((rec, index) => {
-                const card = document.createElement('div');
-                card.className = 'recommendation-card';
-                
-                const title = document.createElement('div');
-                title.className = 'recommendation-title';
-                title.textContent = `Recommendation ${index + 1}`;
-                
-                const description = document.createElement('div');
-                description.className = 'recommendation-description';
-                description.textContent = rec;
-                
-                card.appendChild(title);
-                card.appendChild(description);
-                recommendationsList.appendChild(card);
-            });
-        }
-
-        // Event listeners
-        sendButton.addEventListener('click', sendMessage);
-        courseForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            getCourseRecommendations();
-        });
-        
-        chatInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        });
-
-        // Focus input on load
-        chatInput.focus();
-    </script>
 </body>
 </html>
