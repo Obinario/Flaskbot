@@ -4,296 +4,162 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Course Recommendations</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px 0;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
         }
-
+        
         .container {
-            max-width: 1000px;
+            max-width: 800px;
             margin: 0 auto;
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-            position: relative;
-        }
-
-        .header h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            font-size: 16px;
-            opacity: 0.9;
-        }
-
-        .nav-button {
-            position: absolute;
-            right: 30px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: none;
-            padding: 12px 20px;
             border-radius: 8px;
-            cursor: pointer;
-            text-decoration: none;
-            font-size: 14px;
-            transition: background 0.3s;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-
-        .nav-button:hover {
+        
+        .header {
+            background: #28a745;
+            color: white;
+            padding: 20px;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+        }
+        
+        .home-link {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+        }
+        
+        .home-link:hover {
             background: rgba(255,255,255,0.3);
         }
-
-        .content {
-            display: flex;
-            min-height: 600px;
-        }
-
+        
         .form-section {
-            flex: 1;
-            padding: 40px;
-            background: #f8f9fa;
-            border-right: 1px solid #e1e5e9;
+            padding: 30px;
         }
-
+        
         .form-section h2 {
+            margin: 0 0 20px 0;
             color: #333;
-            margin-bottom: 30px;
-            font-size: 24px;
         }
-
+        
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
-
+        
         .form-label {
             display: block;
             margin-bottom: 8px;
-            font-weight: 600;
+            font-weight: bold;
             color: #333;
-            font-size: 16px;
         }
-
+        
         .form-input, .form-select, .form-textarea {
             width: 100%;
-            padding: 15px 20px;
+            padding: 12px;
             border: 2px solid #e1e5e9;
-            border-radius: 10px;
+            border-radius: 4px;
             font-size: 16px;
-            transition: all 0.3s;
-            background: white;
+            box-sizing: border-box;
         }
-
+        
         .form-input:focus, .form-select:focus, .form-textarea:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #28a745;
         }
-
+        
         .form-textarea {
             resize: vertical;
             min-height: 100px;
         }
-
+        
         .form-row {
             display: flex;
             gap: 20px;
         }
-
+        
         .form-row .form-group {
             flex: 1;
         }
-
+        
         .submit-button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #28a745;
             color: white;
             border: none;
             padding: 15px 30px;
-            border-radius: 10px;
+            border-radius: 4px;
             font-size: 16px;
-            font-weight: 600;
             cursor: pointer;
             width: 100%;
-            transition: transform 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
         }
-
+        
         .submit-button:hover {
-            transform: translateY(-2px);
+            background: #218838;
         }
-
+        
         .submit-button:disabled {
             opacity: 0.6;
             cursor: not-allowed;
-            transform: none;
         }
-
-        .results-section {
-            flex: 1;
-            padding: 40px;
-            background: white;
-            overflow-y: auto;
-            max-height: 600px;
+        
+        .recommendations-section {
+            padding: 30px;
+            border-top: 1px solid #e1e5e9;
+            display: none;
         }
-
-        .results-section h2 {
+        
+        .recommendations-section.active {
+            display: block;
+        }
+        
+        .recommendations-section h2 {
+            margin: 0 0 20px 0;
             color: #333;
-            margin-bottom: 30px;
-            font-size: 24px;
         }
-
-        .no-results {
+        
+        .recommendation-card {
+            background: #f8f9fa;
+            border: 1px solid #e1e5e9;
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .recommendation-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .recommendation-description {
+            color: #666;
+            line-height: 1.5;
+        }
+        
+        .no-recommendations {
             text-align: center;
             color: #6c757d;
             font-style: italic;
-            padding: 60px 20px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            border: 2px dashed #dee2e6;
+            padding: 40px 20px;
         }
-
-        .no-results i {
-            font-size: 48px;
-            margin-bottom: 20px;
-            color: #adb5bd;
-        }
-
-        .recommendation-card {
-            background: white;
-            border: 1px solid #e1e5e9;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .recommendation-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        .recommendation-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
-        }
-
-        .recommendation-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #333;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .recommendation-number {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .recommendation-description {
-            color: #666;
-            line-height: 1.6;
-            font-size: 16px;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #667eea;
-        }
-
-        .loading i {
-            font-size: 24px;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        .error-message {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-            border-radius: 10px;
-            padding: 15px 20px;
-            margin: 20px 0;
-            text-align: center;
-        }
-
+        
         @media (max-width: 768px) {
-            .content {
-                flex-direction: column;
-            }
-
-            .form-section {
-                border-right: none;
-                border-bottom: 1px solid #e1e5e9;
-            }
-
             .form-row {
                 flex-direction: column;
                 gap: 0;
-            }
-
-            .nav-button {
-                position: static;
-                transform: none;
-                margin-top: 15px;
-                display: inline-block;
-            }
-
-            .header h1 {
-                font-size: 24px;
-            }
-
-            .container {
-                margin: 10px;
-                border-radius: 15px;
             }
         }
     </style>
@@ -301,81 +167,73 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1><i class="fas fa-graduation-cap"></i> Course Recommendations</h1>
-            <p>Get personalized course recommendations based on your academic profile</p>
-            <a href="/chatbot" class="nav-button">
-                <i class="fas fa-comments"></i> Chat with AI
-            </a>
+            <h1>Course Recommendations</h1>
+            <a href="/" class="home-link">Home</a>
         </div>
         
-        <div class="content">
-            <div class="form-section">
-                <h2>Your Academic Profile</h2>
-                <form id="courseForm">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label" for="stanine">Stanine Score (1-9)</label>
-                            <select id="stanine" class="form-select" required>
-                                <option value="">Select Stanine</option>
-                                <option value="1">1 - Very Low</option>
-                                <option value="2">2 - Low</option>
-                                <option value="3">3 - Below Average</option>
-                                <option value="4">4 - Below Average</option>
-                                <option value="5">5 - Average</option>
-                                <option value="6">6 - Above Average</option>
-                                <option value="7">7 - Above Average</option>
-                                <option value="8">8 - High</option>
-                                <option value="9">9 - Very High</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="gwa">GWA (Grade Weighted Average)</label>
-                            <input type="number" id="gwa" class="form-input" placeholder="e.g., 85.0" step="0.1" min="0" max="100" required>
-                        </div>
-                    </div>
-                    
+        <div class="form-section">
+            <h2>Get Personalized Course Recommendations</h2>
+            <form id="courseForm">
+                <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label" for="strand">Academic Strand</label>
-                        <select id="strand" class="form-select" required>
-                            <option value="">Select Strand</option>
-                            <option value="STEM">STEM (Science, Technology, Engineering, Mathematics)</option>
-                            <option value="ABM">ABM (Accountancy, Business, Management)</option>
-                            <option value="HUMSS">HUMSS (Humanities and Social Sciences)</option>
-                            <option value="GAS">GAS (General Academic Strand)</option>
-                            <option value="TVL">TVL (Technical-Vocational-Livelihood)</option>
-                            <option value="Arts and Design">Arts and Design</option>
-                            <option value="Sports">Sports</option>
+                        <label class="form-label" for="stanine">Stanine Score (1-9)</label>
+                        <select id="stanine" class="form-select" required>
+                            <option value="">Select Stanine</option>
+                            <option value="1">1 - Very Low</option>
+                            <option value="2">2 - Low</option>
+                            <option value="3">3 - Below Average</option>
+                            <option value="4">4 - Below Average</option>
+                            <option value="5">5 - Average</option>
+                            <option value="6">6 - Above Average</option>
+                            <option value="7">7 - Above Average</option>
+                            <option value="8">8 - High</option>
+                            <option value="9">9 - Very High</option>
                         </select>
                     </div>
-                    
                     <div class="form-group">
-                        <label class="form-label" for="hobbies">Hobbies & Interests</label>
-                        <textarea id="hobbies" class="form-textarea" placeholder="Tell us about your hobbies, interests, and what you enjoy doing..." required></textarea>
-                    </div>
-                    
-                    <button type="submit" class="submit-button">
-                        <i class="fas fa-search"></i> Get Course Recommendations
-                    </button>
-                </form>
-            </div>
-            
-            <div class="results-section">
-                <h2>Your Recommendations</h2>
-                <div id="resultsContainer">
-                    <div class="no-results">
-                        <i class="fas fa-graduation-cap"></i>
-                        <p>Fill out the form to get personalized course recommendations</p>
+                        <label class="form-label" for="gwa">GWA (Grade Weighted Average)</label>
+                        <input type="number" id="gwa" class="form-input" placeholder="e.g., 85.0" step="0.1" min="0" max="100" required>
                     </div>
                 </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="strand">Academic Strand</label>
+                    <select id="strand" class="form-select" required>
+                        <option value="">Select Strand</option>
+                        <option value="STEM">STEM (Science, Technology, Engineering, Mathematics)</option>
+                        <option value="ABM">ABM (Accountancy, Business, Management)</option>
+                        <option value="HUMSS">HUMSS (Humanities and Social Sciences)</option>
+                        <option value="GAS">GAS (General Academic Strand)</option>
+                        <option value="TVL">TVL (Technical-Vocational-Livelihood)</option>
+                        <option value="Arts and Design">Arts and Design</option>
+                        <option value="Sports">Sports</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="hobbies">Hobbies & Interests</label>
+                    <textarea id="hobbies" class="form-textarea" placeholder="Tell us about your hobbies, interests, and what you enjoy doing..." required></textarea>
+                </div>
+                
+                <button type="submit" class="submit-button">
+                    Get Course Recommendations
+                </button>
+            </form>
+        </div>
+        
+        <div class="recommendations-section" id="recommendationsSection">
+            <h2>Your Course Recommendations</h2>
+            <div id="recommendationsList">
+                <!-- Recommendations will be displayed here -->
             </div>
         </div>
     </div>
 
     <script>
         const courseForm = document.getElementById('courseForm');
-        const resultsContainer = document.getElementById('resultsContainer');
+        const recommendationsSection = document.getElementById('recommendationsSection');
+        const recommendationsList = document.getElementById('recommendationsList');
 
-        // Course recommendation functionality
         async function getCourseRecommendations() {
             const stanine = document.getElementById('stanine').value;
             const gwa = document.getElementById('gwa').value;
@@ -387,19 +245,10 @@
                 return;
             }
 
-            // Show loading state
             const submitButton = courseForm.querySelector('button[type="submit"]');
-            const originalText = submitButton.innerHTML;
-            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting Recommendations...';
+            const originalText = submitButton.textContent;
+            submitButton.textContent = 'Getting Recommendations...';
             submitButton.disabled = true;
-
-            // Show loading in results
-            resultsContainer.innerHTML = `
-                <div class="loading">
-                    <i class="fas fa-spinner fa-spin"></i>
-                    <p>Analyzing your profile and finding the best course recommendations...</p>
-                </div>
-            `;
 
             try {
                 const response = await fetch('/course_recommendations', {
@@ -419,64 +268,50 @@
                 
                 if (data.status === 'success') {
                     displayRecommendations(data.recommendations);
+                    recommendationsSection.classList.add('active');
                 } else {
-                    resultsContainer.innerHTML = `
-                        <div class="error-message">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            Error: ${data.error}
-                        </div>
-                    `;
+                    alert('Error: ' + data.error);
                 }
             } catch (error) {
-                resultsContainer.innerHTML = `
-                    <div class="error-message">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        Error getting recommendations. Please try again.
-                    </div>
-                `;
+                alert('Error getting recommendations. Please try again.');
                 console.error('Error:', error);
             } finally {
-                // Reset button state
-                submitButton.innerHTML = originalText;
+                submitButton.textContent = originalText;
                 submitButton.disabled = false;
             }
         }
 
-        // Display course recommendations
         function displayRecommendations(recommendations) {
+            recommendationsList.innerHTML = '';
+            
             if (!recommendations || recommendations.length === 0) {
-                resultsContainer.innerHTML = `
-                    <div class="no-results">
-                        <i class="fas fa-search"></i>
-                        <p>No recommendations available. Please try again with different information.</p>
-                    </div>
-                `;
+                recommendationsList.innerHTML = '<div class="no-recommendations">No recommendations available. Please try again with different information.</div>';
                 return;
             }
 
-            // Handle different response formats
             let recommendationsArray = recommendations;
             if (typeof recommendations === 'string') {
                 recommendationsArray = [recommendations];
             }
 
-            let html = '';
             recommendationsArray.forEach((rec, index) => {
-                html += `
-                    <div class="recommendation-card">
-                        <div class="recommendation-title">
-                            <div class="recommendation-number">${index + 1}</div>
-                            Course Recommendation ${index + 1}
-                        </div>
-                        <div class="recommendation-description">${rec}</div>
-                    </div>
-                `;
+                const card = document.createElement('div');
+                card.className = 'recommendation-card';
+                
+                const title = document.createElement('div');
+                title.className = 'recommendation-title';
+                title.textContent = `Recommendation ${index + 1}`;
+                
+                const description = document.createElement('div');
+                description.className = 'recommendation-description';
+                description.textContent = rec;
+                
+                card.appendChild(title);
+                card.appendChild(description);
+                recommendationsList.appendChild(card);
             });
-
-            resultsContainer.innerHTML = html;
         }
 
-        // Event listener
         courseForm.addEventListener('submit', function(e) {
             e.preventDefault();
             getCourseRecommendations();
