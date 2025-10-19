@@ -12,7 +12,7 @@ def index():
     """Render the main chat page"""
     return render_template('index.html')
 
-@app.route('/chat', methods=['POST'])
+@app.route('/api/chat', methods=['POST'])
 def chat():
     """Handle chat messages and return bot responses"""
     try:
@@ -42,7 +42,7 @@ def chat():
             'status': 'error'
         }), 500
 
-@app.route('/course_recommendations', methods=['POST'])
+@app.route('/api/courses', methods=['POST'])
 def course_recommendations():
     """Get course recommendations based on student profile"""
     try:
