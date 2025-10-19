@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect
 from gradio_client import Client
 import os
 
@@ -9,10 +9,20 @@ client = Client("markobinario/flaskbot")
 
 @app.route('/')
 def index():
-    """Render the main chat page"""
-    return render_template('index.html')
+    """Redirect to chatbot page"""
+    return redirect('/chatbot')
 
-@app.route('/api/chat', methods=['POST'])
+@app.route('/chatbot')
+def chatbot():
+    """Render the chatbot page"""
+    return render_template('chatbot.html')
+
+@app.route('/recommendations')
+def recommendations():
+    """Render the course recommendations page"""
+    return render_template('recommendations.html')
+
+@app.route('/chat', methods=['POST'])
 def chat():
     """Handle chat messages and return bot responses"""
     try:
@@ -42,7 +52,7 @@ def chat():
             'status': 'error'
         }), 500
 
-@app.route('/api/courses', methods=['POST'])
+@app.route('/course_recommendations', methods=['POST'])
 def course_recommendations():
     """Get course recommendations based on student profile"""
     try:
