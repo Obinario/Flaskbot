@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 from gradio_client import Client
+import mysql.connector
 import os
 import sys
 
@@ -14,149 +15,102 @@ app = Flask(__name__)
 # Initialize the Gradio client
 try:
     client = Client("markobinario/flaskbot")
-    print("Gradio client initialized successfully")
+    print("✅ Gradio client initialized successfully")
 except Exception as e:
-    print(f"Error initializing Gradio client: {e}")
+    print(f"❌ Error initializing Gradio client: {e}")
     client = None
+
+
+# === 🔹 Database connection helper ===
+def get_db_connection():
+    """Connect to MySQL database"""
+    try:
+        conn = mysql.connector.connect(
+            host="shuttle.proxy.rlwy.net",       
+            user="root",                         
+            password="JCfNOSYEIrgNDqxwzaHBEufEJDPLQkKU",  
+            database="railway",                  
+            port=40148,                           
+            ssl_disabled=True  
+        )
+        return conn
+    except Exception as e:
+        print(f"❌ Database connection failed: {e}")
+        return None
+
+
+def get_answer_from_db(question):
+    """Check if the question exists in the database"""
+    conn = get_db_connection()
+    if not conn:
+        return None
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT answer FROM faqs WHERE question LIKE %s LIMIT 1", (f"%{question}%",))
+    result = cursor.fetchone()
+    conn.close()
+    return result["answer"] if result else None
+
 
 @app.route('/')
 def home():
-    """Render the home page"""
     return render_template('home.html')
+
 
 @app.route('/chatbot')
 def chatbot():
-    """Render the chatbot page"""
     return render_template('chatbot.html')
+
 
 @app.route('/recommendations')
 def recommendations():
-    """Render the recommendations page"""
     return render_template('recommendations.html')
 
+
+# === 🔹 Modified /chat route ===
 @app.route('/chat', methods=['POST'])
 def chat():
     """Handle chat messages and return bot responses"""
     try:
-        # Get the message from the request
         data = request.get_json()
         message = data.get('message', '').strip()
-        
         if not message:
             return jsonify({'error': 'No message provided'}), 400
-        
-        # Call the Gradio API
-        result = client.predict(
-            message=message,
-            api_name="/chat"
-        )
-        
-        # Return the bot's response
-        return jsonify({
-            'response': result,
-            'status': 'success'
-        })
-        
-    except Exception as e:
-        print(f"Error calling Gradio API: {str(e)}")
-        return jsonify({
-            'error': 'Failed to get response from chatbot',
-            'status': 'error'
-        }), 500
 
-@app.route('/course_recommendations', methods=['POST'])
-def course_recommendations():
-    """Get course recommendations based on student profile"""
-    try:
-        # Get the data from the request
-        data = request.get_json()
-        print(f"Received data: {data}")  # Debug log
-        
-        stanine = data.get('stanine', '')
-        gwa = data.get('gwa', '')
-        strand = data.get('strand', '')
-        hobbies = data.get('hobbies', '')
-        
-        print(f"Parsed values - stanine: {stanine}, gwa: {gwa}, strand: {strand}, hobbies: {hobbies}")  # Debug log
-        
-        # Validate required fields
-        if not all([stanine, gwa, strand, hobbies]):
+        # 1️⃣ Check database first
+        db_answer = get_answer_from_db(message)
+        if db_answer:
+            print(f"📚 Found in database: {db_answer}")
             return jsonify({
-                'error': 'Missing required fields: stanine, gwa, strand, and hobbies are required',
-                'status': 'error'
-            }), 400
-        
-        print("Calling Gradio API...")  # Debug log
-        
-        # Check if client is available
+                'response': db_answer,
+                'source': 'database',
+                'status': 'success'
+            })
+
+        # 2️⃣ If not found, call Hugging Face API
         if client is None:
             return jsonify({
-                'error': 'Gradio client not initialized. Please check server logs.',
-                'status': 'error'
-            }), 500
-        
-        # Call the Gradio API for course recommendations
-        result = client.predict(
-            stanine=stanine,
-            gwa=gwa,
-            strand=strand,
-            hobbies=hobbies,
-            api_name="/get_course_recommendations"
-        )
-        
-        print(f"API result: {result}")  # Debug log
-        
-        # Return the course recommendations
-        return jsonify({
-            'recommendations': result,
-            'status': 'success'
-        })
-        
-    except Exception as e:
-        print(f"Error calling course recommendations API: {str(e)}")
-        print(f"Error type: {type(e)}")
-        import traceback
-        traceback.print_exc()
-        return jsonify({
-            'error': f'Failed to get course recommendations: {str(e)}',
-            'status': 'error'
-        }), 500
-
-@app.route('/test_gradio')
-def test_gradio():
-    """Test Gradio client connection"""
-    try:
-        if client is None:
-            return jsonify({
-                'status': 'error',
                 'error': 'Gradio client not initialized',
-                'message': 'Gradio client connection failed'
+                'status': 'error'
             }), 500
-            
-        # Test basic connection
-        result = client.predict(
-            stanine="7",
-            gwa="85.0",
-            strand="STEM",
-            hobbies="Programming",
-            api_name="/get_course_recommendations"
-        )
+
+        ai_answer = client.predict(message=message, api_name="/chat")
+        print(f"🤖 Hugging Face AI response: {ai_answer}")
+
         return jsonify({
-            'status': 'success',
-            'test_result': result,
-            'message': 'Gradio client is working'
+            'response': ai_answer,
+            'source': 'huggingface',
+            'status': 'success'
         })
+
     except Exception as e:
-        return jsonify({
-            'status': 'error',
-            'error': str(e),
-            'message': 'Gradio client connection failed'
-        }), 500
+        print(f"❌ Error in /chat: {str(e)}")
+        return jsonify({'error': str(e), 'status': 'error'}), 500
+
 
 @app.route('/health')
 def health():
-    """Health check endpoint"""
     return jsonify({'status': 'healthy'})
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
